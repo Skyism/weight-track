@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { DumbbellIcon, ListIcon, SlidersIcon } from '../../components/icons';
+import { DumbbellIcon, FlameIcon, ListIcon, SlidersIcon } from '../../components/icons';
 import { colors, font, letterSpacing } from '../../theme/theme';
 
 export default function TabsLayout() {
@@ -36,6 +36,13 @@ export default function TabsLayout() {
         options={{
           title: 'Routines',
           tabBarIcon: ({ color }) => <ListIcon size={24} color={color as string} />,
+        }}
+      />
+      <Tabs.Screen
+        name="nutrition"
+        options={{
+          title: 'Nutrition',
+          tabBarIcon: ({ color }) => <FlameIcon size={24} color={color as string} />,
         }}
       />
       <Tabs.Screen

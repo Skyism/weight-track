@@ -17,10 +17,12 @@ export function ProgressChart({
   points,
   height = 180,
   title,
+  reference,
 }: {
   points: ChartPoint[];
   height?: number;
   title?: string;
+  reference?: number; // draws a dashed horizontal target line
 }) {
   const [width, setWidth] = useState(0);
 
@@ -45,8 +47,10 @@ export function ProgressChart({
   const plotH = Math.max(0, height - padT - padB);
 
   const values = points.map((p) => p.value);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+  // Include the target in the range so its line is always visible.
+  const scaleValues = reference != null ? [...values, reference] : values;
+  const min = Math.min(...scaleValues);
+  const max = Math.max(...scaleValues);
   const span = max - min || 1;
 
   const x = (i: number) => padL + (points.length === 1 ? plotW / 2 : (i / (points.length - 1)) * plotW);
@@ -84,6 +88,17 @@ export function ProgressChart({
               {Math.round(v)}
             </SvgText>
           ))}
+          {reference != null ? (
+            <Line
+              x1={padL}
+              y1={y(reference)}
+              x2={width - padR}
+              y2={y(reference)}
+              stroke={colors.accent}
+              strokeWidth={1.5}
+              strokeDasharray="4 4"
+            />
+          ) : null}
           <Polyline
             points={polyline}
             fill="none"
