@@ -11,7 +11,7 @@ import {
 import { Button, Card, EmptyState, Fab, Field, Screen } from '../../components/ui';
 import { createRoutine, listRoutines } from '../../db/repo';
 import { Routine } from '../../lib/types';
-import { colors, fontSize, radius, spacing } from '../../theme/theme';
+import { colors, font, fontSize, radius, spacing } from '../../theme/theme';
 
 export default function RoutinesScreen() {
   const [routines, setRoutines] = useState<Routine[]>([]);
@@ -121,10 +121,10 @@ export default function RoutinesScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xl },
-  routineName: { fontSize: fontSize.lg, fontWeight: '600', color: colors.text },
+  routineName: { fontSize: fontSize.lg, fontFamily: font.semibold, color: colors.text },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(24,24,27,0.35)',
     justifyContent: 'flex-end',
   },
   modalCard: {
@@ -133,10 +133,12 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     paddingBottom: spacing.xl,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   modalTitle: {
     fontSize: fontSize.xl,
-    fontWeight: '700',
+    fontFamily: font.bold,
     color: colors.text,
     marginBottom: spacing.lg,
   },

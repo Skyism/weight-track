@@ -31,7 +31,8 @@ import {
   updateRoutine,
 } from '../../../db/repo';
 import { Exercise, RoutineWithExercises } from '../../../lib/types';
-import { colors, fontSize, radius, spacing } from '../../../theme/theme';
+import { Check, ChevronDown, ChevronUp, Close } from '../../../components/icons';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../../theme/theme';
 
 export default function RoutineDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -194,9 +195,7 @@ export default function RoutineDetailScreen() {
                     hitSlop={6}
                     style={styles.controlBtn}
                   >
-                    <Text style={[styles.controlText, index === 0 && styles.controlDisabled]}>
-                      ↑
-                    </Text>
+                    <ChevronUp size={20} color={index === 0 ? colors.border : colors.text} />
                   </Pressable>
                   <Pressable
                     onPress={() => moveDown(index)}
@@ -204,17 +203,13 @@ export default function RoutineDetailScreen() {
                     hitSlop={6}
                     style={styles.controlBtn}
                   >
-                    <Text
-                      style={[
-                        styles.controlText,
-                        index === exercises.length - 1 && styles.controlDisabled,
-                      ]}
-                    >
-                      ↓
-                    </Text>
+                    <ChevronDown
+                      size={20}
+                      color={index === exercises.length - 1 ? colors.border : colors.text}
+                    />
                   </Pressable>
                   <Pressable onPress={() => remove(ex.id)} hitSlop={6} style={styles.controlBtn}>
-                    <Text style={[styles.controlText, styles.removeText]}>✕</Text>
+                    <Close size={18} color={colors.faint} />
                   </Pressable>
                 </View>
               </Card>
@@ -298,9 +293,9 @@ export default function RoutineDetailScreen() {
                         <Text style={styles.exerciseName}>{ex.name}</Text>
                         {ex.muscleGroup ? <Chip label={ex.muscleGroup} /> : null}
                       </View>
-                      <Text style={[styles.checkMark, selected && styles.checkMarkOn]}>
-                        {selected ? '✓' : ''}
-                      </Text>
+                      <View style={styles.checkSlot}>
+                        {selected ? <Check size={20} color={colors.text} /> : null}
+                      </View>
                     </Pressable>
                   );
                 })}
@@ -329,7 +324,7 @@ export default function RoutineDetailScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xl },
-  headerButton: { color: colors.primary, fontSize: fontSize.lg, fontWeight: '600' },
+  headerButton: { color: colors.text, fontSize: fontSize.md, fontFamily: font.medium },
   spacer: { height: spacing.md },
   exerciseCard: {
     flexDirection: 'row',
@@ -338,7 +333,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   exerciseInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
-  exerciseName: { fontSize: fontSize.lg, fontWeight: '600', color: colors.text },
+  exerciseName: { fontSize: fontSize.lg, fontFamily: font.medium, color: colors.text },
   controls: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginLeft: spacing.sm },
   controlBtn: {
     width: 32,
@@ -346,16 +341,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  controlText: { fontSize: fontSize.xl, color: colors.primary, fontWeight: '600' },
-  controlDisabled: { color: colors.border },
-  removeText: { color: colors.danger },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(24,24,27,0.35)', justifyContent: 'flex-end' },
   modalCard: {
     backgroundColor: colors.bg,
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     paddingBottom: spacing.xl,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   modalCardLarge: {
     backgroundColor: colors.bg,
@@ -364,10 +358,12 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: spacing.xl,
     maxHeight: '80%',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   modalTitle: {
     fontSize: fontSize.xl,
-    fontWeight: '700',
+    fontFamily: font.bold,
     color: colors.text,
     marginBottom: spacing.lg,
   },
@@ -385,7 +381,6 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
-  addRowSelected: { borderColor: colors.primary, borderWidth: 1.5 },
-  checkMark: { fontSize: fontSize.xl, fontWeight: '700', color: 'transparent', marginLeft: spacing.sm },
-  checkMarkOn: { color: colors.primary },
+  addRowSelected: { borderColor: colors.text },
+  checkSlot: { width: 24, alignItems: 'center', marginLeft: spacing.sm },
 });

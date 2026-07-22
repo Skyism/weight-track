@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RestTimerBar } from '../../../components/RestTimer';
 import { Button, Card, Field, Screen } from '../../../components/ui';
+import { ChevronDown, Close } from '../../../components/icons';
 import {
   createDay,
   getDay,
@@ -18,7 +19,7 @@ import { NewSetInput, Unit, WorkoutDayWithSets } from '../../../lib/types';
 import { formatWeight } from '../../../lib/units';
 import { useRestTimer } from '../../../store/useRestTimer';
 import { useSettings } from '../../../store/useSettings';
-import { colors, fontSize, radius, spacing } from '../../../theme/theme';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../../theme/theme';
 
 interface SetRow {
   reps: string;
@@ -191,7 +192,7 @@ export default function EditDayScreen() {
             style={({ pressed }) => [styles.dateRow, { opacity: pressed ? 0.7 : 1 }]}
           >
             <Text style={styles.dateText}>{formatNice(date)}</Text>
-            <Text style={styles.dateChevron}>▾</Text>
+            <ChevronDown size={18} color={colors.faint} />
           </Pressable>
           {showPicker ? (
             <DateTimePicker
@@ -210,6 +211,7 @@ export default function EditDayScreen() {
                 <View style={styles.inputCol}>
                   <Field
                     label="Reps"
+                    mono
                     keyboardType="numeric"
                     value={row.reps}
                     onChangeText={(t) => updateRow(i, { reps: t })}
@@ -219,6 +221,7 @@ export default function EditDayScreen() {
                 <View style={styles.inputCol}>
                   <Field
                     label="Weight"
+                    mono
                     keyboardType="numeric"
                     value={row.weight}
                     onChangeText={(t) => updateRow(i, { weight: t })}
@@ -238,14 +241,14 @@ export default function EditDayScreen() {
                   hitSlop={8}
                   style={styles.removeBtn}
                 >
-                  <Text style={styles.removeText}>✕</Text>
+                  <Close size={18} color={colors.faint} />
                 </Pressable>
               </View>
             </Card>
           ))}
 
           <Button
-            title="＋ Add Set"
+            title="Add set"
             variant="secondary"
             onPress={addSet}
             style={styles.addSet}
@@ -290,9 +293,11 @@ export default function EditDayScreen() {
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.xs,
     color: colors.textMuted,
-    fontWeight: '600',
+    fontFamily: font.semibold,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
     marginBottom: spacing.sm,
   },
   setsLabel: { marginTop: spacing.lg },
@@ -305,44 +310,50 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: 14,
   },
-  dateText: { fontSize: fontSize.lg, color: colors.text, fontWeight: '600' },
-  dateChevron: { fontSize: fontSize.md, color: colors.textMuted },
+  dateText: { fontSize: fontSize.lg, color: colors.text, fontFamily: font.medium },
   setCard: { marginBottom: spacing.md },
   setNum: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.textMuted,
-    marginBottom: spacing.xs,
+    fontSize: fontSize.xs,
+    fontFamily: font.semibold,
+    color: colors.faint,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
+    marginBottom: spacing.sm,
   },
   setInputs: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
   inputCol: { flex: 1 },
   unitBtn: {
-    minWidth: 44,
-    height: 48,
+    minWidth: 48,
+    height: 50,
     borderRadius: radius.sm,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
   },
-  unitBtnText: { fontSize: fontSize.md, fontWeight: '700', color: colors.primary },
+  unitBtnText: {
+    fontSize: fontSize.sm,
+    fontFamily: font.monoMedium,
+    color: colors.text,
+    textTransform: 'uppercase',
+  },
   removeBtn: {
-    width: 44,
-    height: 48,
+    width: 40,
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
   },
-  removeText: { fontSize: fontSize.lg, color: colors.danger, fontWeight: '700' },
   addSet: { marginBottom: spacing.md },
   lastSession: {
     fontSize: fontSize.sm,
-    color: colors.textMuted,
-    fontStyle: 'italic',
+    color: colors.faint,
+    fontFamily: font.mono,
+    letterSpacing: letterSpacing.tight,
     marginBottom: spacing.md,
   },
   actionRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },

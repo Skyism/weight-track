@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import {
@@ -17,9 +18,10 @@ import {
   Field,
   Screen,
 } from '../../components/ui';
+import { Search } from '../../components/icons';
 import { createExercise, listExercises } from '../../db/repo';
 import { Exercise, MUSCLE_GROUPS, MuscleGroup } from '../../lib/types';
-import { colors, fontSize, radius, spacing } from '../../theme/theme';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../theme/theme';
 
 // "None" sentinel for the muscle-group selector in the create modal.
 type GroupSelection = MuscleGroup | null;
@@ -97,13 +99,18 @@ export default function ExercisesScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Field
-          placeholder="Search exercises"
-          value={query}
-          onChangeText={setQuery}
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
+        <View style={styles.searchRow}>
+          <Search size={18} color={colors.faint} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search exercises"
+            placeholderTextColor={colors.faint}
+            value={query}
+            onChangeText={setQuery}
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+        </View>
 
         {loading ? null : filtered.length === 0 ? (
           <EmptyState
@@ -217,12 +224,30 @@ function SelectableChip({
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 14,
+    marginLeft: spacing.sm,
+    fontSize: fontSize.md,
+    fontFamily: font.regular,
+    color: colors.text,
+  },
   listContent: { paddingBottom: spacing.xl * 3 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  exName: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text, flexShrink: 1 },
+  exName: { fontSize: fontSize.lg, fontFamily: font.semibold, color: colors.text, flexShrink: 1 },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(24,24,27,0.35)',
     justifyContent: 'flex-end',
   },
   modalCard: {
@@ -231,17 +256,21 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     paddingBottom: spacing.xl * 2,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   modalTitle: {
     fontSize: fontSize.xl,
-    fontWeight: '800',
+    fontFamily: font.bold,
     color: colors.text,
     marginBottom: spacing.lg,
   },
   groupLabel: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.xs,
     color: colors.textMuted,
-    fontWeight: '600',
+    fontFamily: font.semibold,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
     marginBottom: spacing.sm,
   },
   groupRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
@@ -253,9 +282,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.card,
   },
-  selChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  selChipText: { fontSize: fontSize.sm, color: colors.text, fontWeight: '600' },
-  selChipTextActive: { color: colors.primaryText },
+  selChipActive: { backgroundColor: colors.text, borderColor: colors.text },
+  selChipText: { fontSize: fontSize.sm, color: colors.text, fontFamily: font.medium },
+  selChipTextActive: { color: colors.bg },
   modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl },
   modalButton: { flex: 1 },
 });

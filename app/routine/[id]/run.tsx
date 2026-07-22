@@ -4,7 +4,8 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { Button, Card, Chip, EmptyState, Screen, SectionHeader } from '../../../components/ui';
 import { getRoutineWithExercises } from '../../../db/repo';
 import { RoutineWithExercises } from '../../../lib/types';
-import { colors, fontSize, radius, spacing } from '../../../theme/theme';
+import { Check } from '../../../components/icons';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../../theme/theme';
 
 export default function RunRoutineScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -57,7 +58,8 @@ export default function RunRoutineScreen() {
       ) : (
         <>
           <Text style={styles.progress}>
-            {doneCount} of {exercises.length} done
+            <Text style={styles.progressNum}>{doneCount}</Text> of{' '}
+            <Text style={styles.progressNum}>{exercises.length}</Text> done
           </Text>
 
           <SectionHeader>Checklist</SectionHeader>
@@ -68,7 +70,7 @@ export default function RunRoutineScreen() {
               <Card key={ex.id} style={styles.card}>
                 <Pressable onPress={() => toggle(ex.id)} hitSlop={6} style={styles.checkbox}>
                   <View style={[styles.checkBox, done && styles.checkBoxOn]}>
-                    {done ? <Text style={styles.checkGlyph}>✓</Text> : null}
+                    {done ? <Check size={16} color={colors.bg} strokeWidth={2.25} /> : null}
                   </View>
                 </Pressable>
 
@@ -97,7 +99,8 @@ export default function RunRoutineScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xl },
-  progress: { fontSize: fontSize.xl, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
+  progress: { fontSize: fontSize.lg, fontFamily: font.regular, color: colors.textMuted, marginBottom: spacing.sm },
+  progressNum: { fontFamily: font.monoMedium, color: colors.text, letterSpacing: letterSpacing.tight },
   card: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
   checkbox: { padding: spacing.xs },
   checkBox: {
@@ -110,10 +113,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkBoxOn: { backgroundColor: colors.success, borderColor: colors.success },
-  checkGlyph: { color: colors.primaryText, fontSize: fontSize.md, fontWeight: '800' },
   info: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
-  name: { fontSize: fontSize.lg, fontWeight: '600', color: colors.text },
-  nameDone: { textDecorationLine: 'line-through', color: colors.textMuted },
-  logButton: { minHeight: 36, paddingHorizontal: spacing.md },
+  name: { fontSize: fontSize.lg, fontFamily: font.medium, color: colors.text },
+  nameDone: { textDecorationLine: 'line-through', color: colors.faint },
+  logButton: { minHeight: 40, paddingHorizontal: spacing.md },
   spacer: { height: spacing.md },
 });

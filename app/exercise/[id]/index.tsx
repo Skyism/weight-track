@@ -20,6 +20,7 @@ import {
   EmptyState,
   Field,
   Screen,
+  SegmentedControl,
 } from '../../../components/ui';
 import {
   deleteDay,
@@ -37,7 +38,7 @@ import {
 } from '../../../lib/types';
 import { convertWeight, formatWeight } from '../../../lib/units';
 import { useSettings } from '../../../store/useSettings';
-import { colors, fontSize, radius, spacing } from '../../../theme/theme';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../../theme/theme';
 
 type Tab = 'history' | 'progress';
 
@@ -149,16 +150,14 @@ export default function ExerciseDetailScreen() {
         }}
       />
 
-      <View style={styles.segment}>
-        <SegmentButton
-          label="History"
-          active={tab === 'history'}
-          onPress={() => setTab('history')}
-        />
-        <SegmentButton
-          label="Progress"
-          active={tab === 'progress'}
-          onPress={() => setTab('progress')}
+      <View style={styles.segmentWrap}>
+        <SegmentedControl<Tab>
+          value={tab}
+          onChange={setTab}
+          options={[
+            { label: 'History', value: 'history' },
+            { label: 'Progress', value: 'progress' },
+          ]}
         />
       </View>
 
@@ -248,7 +247,7 @@ function HistoryTab({
   return (
     <View>
       <Button
-        title="＋ Add Day"
+        title="Add day"
         onPress={() => router.push(`/exercise/${id}/edit-day`)}
         style={styles.addDay}
       />
@@ -272,21 +271,19 @@ function HistoryTab({
             >
               <Card style={styles.dayCard}>
                 <View style={styles.dayHeader}>
-                  <Text style={styles.dayDate}>{formatNice(day.date)}</Text>
-                  {isPR ? (
-                    <View style={styles.prBadge}>
-                      <Text style={styles.prBadgeText}>PR</Text>
-                    </View>
-                  ) : null}
+                  <Text style={styles.dayDate}>{formatNice(day.date).toUpperCase()}</Text>
+                  {isPR ? <Text style={styles.prMark}>PR</Text> : null}
                 </View>
 
                 {day.sets.length === 0 ? (
                   <Text style={styles.emptySets}>No sets</Text>
                 ) : (
                   day.sets.map((s, i) => (
-                    <Text key={s.id} style={styles.setLine}>
-                      Set {i + 1}  {s.reps} × {formatWeight(s.weight, s.unit)}
-                    </Text>
+                    <View key={s.id} style={styles.setLine}>
+                      <Text style={styles.setIndex}>{i + 1}</Text>
+                      <Text style={styles.setReps}>{s.reps} reps</Text>
+                      <Text style={styles.setWeight}>{formatWeight(s.weight, s.unit)}</Text>
+                    </View>
                   ))
                 )}
 
@@ -377,27 +374,6 @@ function StatTile({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SegmentButton({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.segBtn, active && styles.segBtnActive]}
-    >
-      <Text style={[styles.segText, active && styles.segTextActive]}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
 function SelectableChip({
   label,
   selected,
@@ -424,57 +400,77 @@ function SelectableChip({
 }
 
 const styles = StyleSheet.create({
-  headerBtn: { color: colors.primary, fontSize: fontSize.lg, fontWeight: '600' },
-  segment: {
-    flexDirection: 'row',
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    padding: spacing.xs,
-    marginBottom: spacing.lg,
-  },
-  segBtn: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderRadius: radius.sm,
-  },
-  segBtnActive: { backgroundColor: colors.primary },
-  segText: { fontSize: fontSize.md, fontWeight: '600', color: colors.textMuted },
-  segTextActive: { color: colors.primaryText },
+  headerBtn: { color: colors.text, fontSize: fontSize.md, fontFamily: font.medium },
+  segmentWrap: { marginBottom: spacing.lg },
   addDay: { marginBottom: spacing.lg },
   dayCard: { marginBottom: spacing.md },
   dayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
-  dayDate: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text },
-  prBadge: {
-    backgroundColor: colors.accent,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+  dayDate: {
+    fontSize: fontSize.xs,
+    fontFamily: font.semibold,
+    color: colors.textMuted,
+    letterSpacing: letterSpacing.wide,
   },
-  prBadgeText: { fontSize: fontSize.sm, fontWeight: '800', color: colors.text },
-  setLine: { fontSize: fontSize.md, color: colors.text, marginTop: 2 },
-  emptySets: { fontSize: fontSize.md, color: colors.textMuted },
-  deleteDay: { alignSelf: 'flex-start', marginTop: spacing.sm },
-  deleteDayText: { color: colors.danger, fontSize: fontSize.sm, fontWeight: '600' },
+  prMark: {
+    fontSize: fontSize.xs,
+    fontFamily: font.bold,
+    color: colors.accent,
+    letterSpacing: letterSpacing.wide,
+  },
+  setLine: { flexDirection: 'row', alignItems: 'baseline', paddingVertical: 3 },
+  setIndex: {
+    width: 22,
+    fontSize: fontSize.sm,
+    fontFamily: font.mono,
+    color: colors.faint,
+  },
+  setReps: {
+    flex: 1,
+    fontSize: fontSize.md,
+    fontFamily: font.mono,
+    color: colors.textMuted,
+    letterSpacing: letterSpacing.tight,
+  },
+  setWeight: {
+    fontSize: fontSize.md,
+    fontFamily: font.monoMedium,
+    color: colors.text,
+    letterSpacing: letterSpacing.tight,
+  },
+  emptySets: { fontSize: fontSize.md, color: colors.faint, fontFamily: font.regular },
+  deleteDay: { alignSelf: 'flex-start', marginTop: spacing.md },
+  deleteDayText: {
+    color: colors.danger,
+    fontSize: fontSize.xs,
+    fontFamily: font.semibold,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
+  },
   statsRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },
   statTile: { flex: 1, alignItems: 'center' },
-  statValue: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text },
+  statValue: {
+    fontSize: fontSize.lg,
+    fontFamily: font.monoMedium,
+    color: colors.text,
+    letterSpacing: letterSpacing.tight,
+  },
   statLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
+    fontSize: fontSize.xs,
+    color: colors.faint,
+    fontFamily: font.medium,
     marginTop: spacing.xs,
     textAlign: 'center',
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(24,24,27,0.35)',
     justifyContent: 'flex-end',
   },
   modalCard: {
@@ -483,17 +479,21 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     paddingBottom: spacing.xl * 2,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   modalTitle: {
     fontSize: fontSize.xl,
-    fontWeight: '800',
+    fontFamily: font.bold,
     color: colors.text,
     marginBottom: spacing.lg,
   },
   groupLabel: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.xs,
     color: colors.textMuted,
-    fontWeight: '600',
+    fontFamily: font.semibold,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
     marginBottom: spacing.sm,
   },
   groupRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
@@ -505,9 +505,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.card,
   },
-  selChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  selChipText: { fontSize: fontSize.sm, color: colors.text, fontWeight: '600' },
-  selChipTextActive: { color: colors.primaryText },
+  selChipActive: { backgroundColor: colors.text, borderColor: colors.text },
+  selChipText: { fontSize: fontSize.sm, color: colors.text, fontFamily: font.medium },
+  selChipTextActive: { color: colors.bg },
   modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl },
   flexBtn: { flex: 1 },
   deleteBtn: { marginTop: spacing.md },

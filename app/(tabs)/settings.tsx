@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
-import { Button, Divider, Screen, SectionHeader } from '../../components/ui';
+import { Button, Divider, Screen, SectionHeader, SegmentedControl } from '../../components/ui';
 import { exportAll } from '../../db/repo';
 import { useSettings } from '../../store/useSettings';
 import { Unit } from '../../lib/types';
-import { colors, fontSize, radius, spacing } from '../../theme/theme';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../theme/theme';
 
 const REST_PRESETS = [60, 90, 120, 180];
 const MIN_REST = 15;
@@ -73,25 +73,19 @@ export default function SettingsScreen() {
   return (
     <Screen scroll>
       <SectionHeader>Units</SectionHeader>
-      <View style={styles.segment}>
-        {(['kg', 'lb'] as Unit[]).map((u) => {
-          const active = unit === u;
-          return (
-            <Pressable
-              key={u}
-              onPress={() => setUnit(u)}
-              style={[styles.segmentItem, active && styles.segmentItemActive]}
-            >
-              <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
-                {u === 'kg' ? 'Kilograms (kg)' : 'Pounds (lb)'}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <SegmentedControl<Unit>
+        value={unit}
+        onChange={setUnit}
+        options={[
+          { label: 'Kilograms', value: 'kg' },
+          { label: 'Pounds', value: 'lb' },
+        ]}
+      />
 
       <SectionHeader>Rest timer</SectionHeader>
-      <Text style={styles.current}>Default: {fmtDuration(restTimerSeconds)}</Text>
+      <Text style={styles.current}>
+        Default <Text style={styles.currentValue}>{fmtDuration(restTimerSeconds)}</Text>
+      </Text>
       <View style={styles.presetRow}>
         {REST_PRESETS.map((sec) => {
           const active = restTimerSeconds === sec;
@@ -110,7 +104,7 @@ export default function SettingsScreen() {
       </View>
       <View style={styles.adjustRow}>
         <Button
-          title="−15s"
+          title="-15s"
           variant="secondary"
           onPress={() => setRestTimerSeconds(Math.max(MIN_REST, restTimerSeconds - 15))}
           style={styles.adjustBtn}
@@ -129,7 +123,7 @@ export default function SettingsScreen() {
         lose your history.
       </Text>
       <Button
-        title="Export / Back up data (JSON)"
+        title="Back up data (JSON)"
         onPress={exportJson}
         loading={exporting === 'json'}
         disabled={exporting !== null}
@@ -146,40 +140,29 @@ export default function SettingsScreen() {
       <Divider />
       <SectionHeader>About</SectionHeader>
       <Text style={styles.aboutTitle}>Weight Track</Text>
-      <Text style={styles.note}>Log your lifts, track sets and reps, and watch your strength grow.</Text>
+      <Text style={styles.note}>Log your lifts, track sets and reps, watch your strength grow.</Text>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  segment: {
-    flexDirection: 'row',
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    overflow: 'hidden',
-  },
-  segmentItem: { flex: 1, paddingVertical: spacing.md, alignItems: 'center' },
-  segmentItemActive: { backgroundColor: colors.primary },
-  segmentText: { fontSize: fontSize.md, fontWeight: '600', color: colors.text },
-  segmentTextActive: { color: colors.primaryText },
-  current: { fontSize: fontSize.md, color: colors.textMuted, marginBottom: spacing.sm },
+  current: { fontSize: fontSize.md, color: colors.textMuted, marginBottom: spacing.md, fontFamily: font.regular },
+  currentValue: { fontFamily: font.monoMedium, color: colors.text, letterSpacing: letterSpacing.tight },
   presetRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   preset: {
     flex: 1,
-    paddingVertical: spacing.md,
+    paddingVertical: 14,
     alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
-  presetActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  presetText: { fontSize: fontSize.md, fontWeight: '600', color: colors.text },
-  presetTextActive: { color: colors.primaryText },
+  presetActive: { backgroundColor: colors.text, borderColor: colors.text },
+  presetText: { fontSize: fontSize.md, fontFamily: font.mono, color: colors.text, letterSpacing: letterSpacing.tight },
+  presetTextActive: { color: colors.bg },
   adjustRow: { flexDirection: 'row', gap: spacing.sm },
   adjustBtn: { flex: 1 },
-  note: { fontSize: fontSize.md, color: colors.textMuted, marginBottom: spacing.md, lineHeight: 20 },
-  aboutTitle: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text, marginBottom: spacing.xs },
+  note: { fontSize: fontSize.md, color: colors.textMuted, marginBottom: spacing.md, lineHeight: 21, fontFamily: font.regular },
+  aboutTitle: { fontSize: fontSize.lg, fontFamily: font.semibold, color: colors.text, marginBottom: spacing.xs },
 });
