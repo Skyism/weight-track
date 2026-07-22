@@ -193,11 +193,10 @@ export default function NutritionScreen() {
           <View style={{ height: spacing.md }} />
           <Meter label="Protein" value={totals.protein} target={proteinTarget} suffix="g" />
 
-          <Pressable onPress={openTargets} hitSlop={6} style={styles.editTargets}>
-            <Text style={styles.editTargetsText}>Edit targets</Text>
-          </Pressable>
-
-          <Button title="Add food" onPress={openAdd} style={styles.addFood} />
+          <View style={styles.actionRow}>
+            <Button title="Edit targets" variant="secondary" onPress={openTargets} style={styles.flexBtn} />
+            <Button title="Add food" onPress={openAdd} style={styles.flexBtn} />
+          </View>
 
           {entries.length === 0 ? (
             <EmptyState title="Nothing logged" subtitle="Add what you ate to track calories and protein." />
@@ -405,15 +404,7 @@ const styles = StyleSheet.create({
   meterTarget: { fontSize: fontSize.md, fontFamily: font.mono, color: colors.faint, letterSpacing: letterSpacing.tight },
   track: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 3 },
-  editTargets: { alignSelf: 'flex-end', marginTop: spacing.md, marginBottom: spacing.sm },
-  editTargetsText: {
-    fontSize: fontSize.xs,
-    fontFamily: font.semibold,
-    color: colors.textMuted,
-    letterSpacing: letterSpacing.wide,
-    textTransform: 'uppercase',
-  },
-  addFood: { marginBottom: spacing.lg },
+  actionRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg, marginBottom: spacing.lg },
   foodRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
   foodName: { flex: 1, fontSize: fontSize.md, fontFamily: font.medium, color: colors.text, marginRight: spacing.md },
   foodMacros: { alignItems: 'flex-end' },

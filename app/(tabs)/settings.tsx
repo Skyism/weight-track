@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
-import { Button, Divider, Screen, SectionHeader, SegmentedControl } from '../../components/ui';
+import { Modal, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Button, Divider, Field, Screen, SectionHeader, SegmentedControl } from '../../components/ui';
 import { exportAll } from '../../db/repo';
 import { useSettings } from '../../store/useSettings';
 import { Unit } from '../../lib/types';
@@ -21,8 +21,33 @@ function csvField(value: string | number): string {
 }
 
 export default function SettingsScreen() {
-  const { unit, restTimerSeconds, setUnit, setRestTimerSeconds } = useSettings();
+  const {
+    unit,
+    restTimerSeconds,
+    calorieTarget,
+    proteinTarget,
+    setUnit,
+    setRestTimerSeconds,
+    setCalorieTarget,
+    setProteinTarget,
+  } = useSettings();
   const [exporting, setExporting] = useState<null | 'json' | 'csv'>(null);
+
+  const [targetModal, setTargetModal] = useState(false);
+  const [tCal, setTCal] = useState('');
+  const [tProtein, setTProtein] = useState('');
+
+  const openTargets = () => {
+    setTCal(String(calorieTarget));
+    setTProtein(String(proteinTarget));
+    setTargetModal(true);
+  };
+
+  const saveTargets = async () => {
+    await setCalorieTarget(Math.max(0, Math.round(parseFloat(tCal) || 0)));
+    await setProteinTarget(Math.max(0, Math.round(parseFloat(tProtein) || 0)));
+    setTargetModal(false);
+  };
 
   const shareText = async (title: string, message: string) => {
     try {
@@ -117,6 +142,17 @@ export default function SettingsScreen() {
         />
       </View>
 
+      <SectionHeader>Nutrition targets</SectionHeader>
+      <View style={styles.targetRow}>
+        <Text style={styles.targetLabel}>Calories</Text>
+        <Text style={styles.targetValue}>{calorieTarget} kcal</Text>
+      </View>
+      <View style={styles.targetRow}>
+        <Text style={styles.targetLabel}>Protein</Text>
+        <Text style={styles.targetValue}>{proteinTarget} g</Text>
+      </View>
+      <Button title="Edit targets" variant="secondary" onPress={openTargets} />
+
       <SectionHeader>Data</SectionHeader>
       <Text style={styles.note}>
         Your workouts are stored only on this device. Export a backup regularly so you don&apos;t
@@ -141,6 +177,26 @@ export default function SettingsScreen() {
       <SectionHeader>About</SectionHeader>
       <Text style={styles.aboutTitle}>Weight Track</Text>
       <Text style={styles.note}>Log your lifts, track sets and reps, watch your strength grow.</Text>
+
+      <Modal visible={targetModal} animationType="slide" transparent onRequestClose={() => setTargetModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Daily targets</Text>
+            <View style={styles.macroRow}>
+              <View style={styles.macroCol}>
+                <Field label="Calories" mono keyboardType="numeric" value={tCal} onChangeText={setTCal} placeholder="2000" />
+              </View>
+              <View style={styles.macroCol}>
+                <Field label="Protein (g)" mono keyboardType="numeric" value={tProtein} onChangeText={setTProtein} placeholder="160" />
+              </View>
+            </View>
+            <View style={styles.modalActions}>
+              <Button title="Cancel" variant="ghost" onPress={() => setTargetModal(false)} style={styles.flexBtn} />
+              <Button title="Save" onPress={saveTargets} style={styles.flexBtn} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -165,4 +221,29 @@ const styles = StyleSheet.create({
   adjustBtn: { flex: 1 },
   note: { fontSize: fontSize.md, color: colors.textMuted, marginBottom: spacing.md, lineHeight: 21, fontFamily: font.regular },
   aboutTitle: { fontSize: fontSize.lg, fontFamily: font.semibold, color: colors.text, marginBottom: spacing.xs },
+  targetRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  targetLabel: { fontSize: fontSize.md, fontFamily: font.medium, color: colors.text },
+  targetValue: { fontSize: fontSize.md, fontFamily: font.monoMedium, color: colors.text, letterSpacing: letterSpacing.tight },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(24,24,27,0.35)', justifyContent: 'flex-end' },
+  modalCard: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl * 2,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  modalTitle: { fontSize: fontSize.xl, fontFamily: font.bold, color: colors.text, marginBottom: spacing.lg },
+  macroRow: { flexDirection: 'row', gap: spacing.md },
+  macroCol: { flex: 1 },
+  modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
+  flexBtn: { flex: 1 },
 });
