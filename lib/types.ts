@@ -66,9 +66,31 @@ export interface RoutineWithExercises extends Routine {
   exercises: Exercise[];
 }
 
+export interface FoodEntry {
+  id: string;
+  date: string; // 'YYYY-MM-DD'
+  name: string;
+  calories: number;
+  protein: number; // grams
+  createdAt: string;
+}
+
+/** Aggregated calories/protein for a single day. */
+export interface DailyNutrition {
+  date: string; // 'YYYY-MM-DD'
+  calories: number;
+  protein: number;
+}
+
 // Input payloads
 export interface NewSetInput {
   reps: number;
   weight: number;
   unit: Unit;
+}
+
+export interface NewFoodInput {
+  name: string;
+  calories: number;
+  protein: number;
 }

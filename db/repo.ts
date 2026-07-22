@@ -1,8 +1,11 @@
 import { randomUUID } from 'expo-crypto';
 import { getDb } from './index';
 import {
+  DailyNutrition,
   Exercise,
+  FoodEntry,
   MuscleGroup,
+  NewFoodInput,
   NewSetInput,
   Routine,
   RoutineWithExercises,
@@ -314,6 +317,59 @@ export async function setSetting(key: string, value: string): Promise<void> {
   );
 }
 
+// --------------------------------------------------------------------- Nutrition
+
+export async function listFoodForDate(date: string): Promise<FoodEntry[]> {
+  const db = await getDb();
+  return db.getAllAsync<FoodEntry>(
+    'SELECT * FROM food_entries WHERE date = ? ORDER BY createdAt ASC;',
+    [date]
+  );
+}
+
+export async function addFood(date: string, input: NewFoodInput): Promise<FoodEntry> {
+  const db = await getDb();
+  const entry: FoodEntry = {
+    id: randomUUID(),
+    date,
+    name: input.name.trim(),
+    calories: input.calories,
+    protein: input.protein,
+    createdAt: new Date().toISOString(),
+  };
+  await db.runAsync(
+    'INSERT INTO food_entries (id, date, name, calories, protein, createdAt) VALUES (?, ?, ?, ?, ?, ?);',
+    [entry.id, entry.date, entry.name, entry.calories, entry.protein, entry.createdAt]
+  );
+  return entry;
+}
+
+export async function updateFood(id: string, input: NewFoodInput): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(
+    'UPDATE food_entries SET name = ?, calories = ?, protein = ? WHERE id = ?;',
+    [input.name.trim(), input.calories, input.protein, id]
+  );
+}
+
+export async function deleteFood(id: string): Promise<void> {
+  const db = await getDb();
+  await db.runAsync('DELETE FROM food_entries WHERE id = ?;', [id]);
+}
+
+/** Per-day calorie/protein totals, oldest first — powers the trend charts. */
+export async function listDailyNutrition(): Promise<DailyNutrition[]> {
+  const db = await getDb();
+  return db.getAllAsync<DailyNutrition>(
+    `SELECT date,
+            CAST(SUM(calories) AS REAL) AS calories,
+            CAST(SUM(protein) AS REAL) AS protein
+       FROM food_entries
+       GROUP BY date
+       ORDER BY date ASC;`
+  );
+}
+
 // --------------------------------------------------------------------- Export
 
 export interface ExportBundle {
@@ -324,18 +380,20 @@ export interface ExportBundle {
   setEntries: SetEntry[];
   routines: Routine[];
   routineExercises: { id: string; routineId: string; exerciseId: string; orderIndex: number }[];
+  foodEntries: FoodEntry[];
 }
 
 /** Full data snapshot for backup/export. */
 export async function exportAll(): Promise<ExportBundle> {
   const db = await getDb();
   return {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     exercises: await db.getAllAsync<Exercise>('SELECT * FROM exercises;'),
     workoutDays: await db.getAllAsync<WorkoutDay>('SELECT * FROM workout_days;'),
     setEntries: await db.getAllAsync<SetEntry>('SELECT * FROM set_entries;'),
     routines: await db.getAllAsync<Routine>('SELECT * FROM routines;'),
     routineExercises: await db.getAllAsync('SELECT * FROM routine_exercises;'),
+    foodEntries: await db.getAllAsync<FoodEntry>('SELECT * FROM food_entries;'),
   };
 }

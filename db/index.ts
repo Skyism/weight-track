@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 const DB_NAME = 'weighttrack.db';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -67,6 +67,24 @@ async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
         value TEXT NOT NULL
       );
     `);
+  }
+
+  if (current < 2) {
+    // Nutrition tracking: one row per logged food item, dated by day.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS food_entries (
+        id TEXT PRIMARY KEY NOT NULL,
+        date TEXT NOT NULL,
+        name TEXT NOT NULL,
+        calories REAL NOT NULL,
+        protein REAL NOT NULL,
+        createdAt TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_food_date ON food_entries(date);
+    `);
+  }
+
+  if (current < SCHEMA_VERSION) {
     await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
   }
 
