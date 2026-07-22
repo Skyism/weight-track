@@ -35,6 +35,30 @@ npm run typecheck   # tsc --noEmit
 npx expo export --platform ios   # headless bundle check
 ```
 
+## iOS Home Screen widget
+
+An interactive WidgetKit widget (iOS 17+) shows today's calories/protein vs target and
+logs configurable quick-add presets straight from the Home Screen. Widgets are native, so
+this part **cannot run in Expo Go** — it needs a prebuilt custom build. Day-to-day dev
+still hot-reloads via a Dev Client.
+
+One-time setup (requires an Apple Developer account):
+
+```bash
+# 1. set your Apple Team ID in app.json (expo.ios.appleTeamId)
+# 2. generate the native project (creates ./ios, git-ignored)
+npx expo prebuild -p ios
+# 3. build + run on a device (or use EAS)
+npx expo run:ios            # local Xcode toolchain
+# or: eas build --profile development --platform ios
+```
+
+- Presets (name, calories, protein) are edited in **Settings → Widget quick-add**.
+- Tapping a preset on the widget logs it via an App Intent and appears in the app's food
+  log on next foreground. Data is shared through App Group `group.com.skyism.weighttrack`.
+- `targets/widget/` = Swift widget + App Intent; `modules/widget-bridge/` = App Group
+  bridge (optional native module, no-ops when absent so the JS app still runs anywhere).
+
 ## Project structure
 
 ```
