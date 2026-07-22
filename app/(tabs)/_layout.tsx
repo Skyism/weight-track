@@ -1,39 +1,48 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
-import { colors } from '../../theme/theme';
-
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
-  return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{label}</Text>;
-}
+import { DumbbellIcon, ListIcon, SlidersIcon } from '../../components/icons';
+import { colors, font, letterSpacing } from '../../theme/theme';
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.text,
+        tabBarInactiveTintColor: colors.faint,
+        tabBarStyle: {
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
+          borderTopWidth: 0.5,
+        },
+        tabBarLabelStyle: {
+          fontFamily: font.medium,
+          fontSize: 10,
+          letterSpacing: letterSpacing.wide,
+          textTransform: 'uppercase',
+        },
         headerStyle: { backgroundColor: colors.bg },
         headerShadowVisible: false,
+        headerTitleStyle: { fontFamily: font.semibold, fontSize: 17, color: colors.text },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Exercises',
-          tabBarIcon: ({ focused }) => <TabIcon label="🏋️" focused={focused} />,
+          tabBarIcon: ({ color }) => <DumbbellIcon size={24} color={color as string} />,
         }}
       />
       <Tabs.Screen
         name="routines"
         options={{
           title: 'Routines',
-          tabBarIcon: ({ focused }) => <TabIcon label="📋" focused={focused} />,
+          tabBarIcon: ({ color }) => <ListIcon size={24} color={color as string} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ focused }) => <TabIcon label="⚙️" focused={focused} />,
+          tabBarIcon: ({ color }) => <SlidersIcon size={24} color={color as string} />,
         }}
       />
     </Tabs>
