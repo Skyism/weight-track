@@ -12,7 +12,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fontSize, radius, spacing } from '../theme/theme';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../theme/theme';
+import { Plus } from './icons';
 
 export function Screen({
   children,
@@ -66,16 +67,15 @@ export function Button({
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
-  const isFilled = variant === 'primary' || variant === 'danger';
-  const bg =
+  const isFilled = variant === 'primary';
+  const bg = variant === 'primary' ? colors.primary : colors.card;
+  const fg =
     variant === 'primary'
-      ? colors.primary
+      ? colors.primaryText
       : variant === 'danger'
         ? colors.danger
-        : variant === 'secondary'
-          ? colors.card
-          : 'transparent';
-  const fg = isFilled ? colors.primaryText : colors.primary;
+        : colors.text;
+  const bordered = variant === 'secondary' || variant === 'danger';
 
   return (
     <Pressable
@@ -83,8 +83,8 @@ export function Button({
       disabled={disabled || loading}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: bg, opacity: disabled ? 0.4 : pressed ? 0.7 : 1 },
-        variant === 'secondary' && styles.buttonBordered,
+        { backgroundColor: variant === 'ghost' ? 'transparent' : bg, opacity: disabled ? 0.35 : pressed ? 0.65 : 1 },
+        bordered && styles.buttonBordered,
         style,
       ]}
     >
@@ -99,14 +99,16 @@ export function Button({
 
 export function Field({
   label,
+  mono = false,
+  style,
   ...props
-}: TextInputProps & { label?: string }) {
+}: TextInputProps & { label?: string; mono?: boolean }) {
   return (
     <View style={styles.fieldWrap}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
       <TextInput
-        placeholderTextColor={colors.textMuted}
-        style={styles.input}
+        placeholderTextColor={colors.faint}
+        style={[styles.input, mono && styles.inputMono, style]}
         {...props}
       />
     </View>
@@ -116,7 +118,7 @@ export function Field({
 export function Chip({ label }: { label: string }) {
   return (
     <View style={styles.chip}>
-      <Text style={styles.chipText}>{label}</Text>
+      <Text style={styles.chipText}>{label.toUpperCase()}</Text>
     </View>
   );
 }
@@ -127,6 +129,38 @@ export function SectionHeader({ children }: { children: ReactNode }) {
 
 export function Divider() {
   return <View style={styles.divider} />;
+}
+
+/** Minimal segmented control (2+ options). */
+export function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+  style,
+}: {
+  options: { label: string; value: T }[];
+  value: T;
+  onChange: (value: T) => void;
+  style?: StyleProp<ViewStyle>;
+}) {
+  return (
+    <View style={[styles.segment, style]}>
+      {options.map((opt) => {
+        const active = opt.value === value;
+        return (
+          <Pressable
+            key={opt.value}
+            onPress={() => onChange(opt.value)}
+            style={[styles.segItem, active && styles.segItemActive]}
+          >
+            <Text style={[styles.segText, active && styles.segTextActive]}>
+              {opt.label.toUpperCase()}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
 }
 
 export function EmptyState({
@@ -142,19 +176,19 @@ export function EmptyState({
     <View style={styles.empty}>
       <Text style={styles.emptyTitle}>{title}</Text>
       {subtitle ? <Text style={styles.emptySubtitle}>{subtitle}</Text> : null}
-      {action ? <View style={{ marginTop: spacing.lg }}>{action}</View> : null}
+      {action ? <View style={{ marginTop: spacing.xl }}>{action}</View> : null}
     </View>
   );
 }
 
-/** Floating action button (bottom-right). */
-export function Fab({ onPress, label = '+' }: { onPress: () => void; label?: string }) {
+/** Floating action button (bottom-right) — red circle with a line-icon plus. */
+export function Fab({ onPress }: { onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.fab, { opacity: pressed ? 0.8 : 1 }]}
+      style={({ pressed }) => [styles.fab, { opacity: pressed ? 0.85 : 1 }]}
     >
-      <Text style={styles.fabText}>{label}</Text>
+      <Plus size={24} color={colors.primaryText} strokeWidth={2} />
     </Pressable>
   );
 }
@@ -171,51 +205,94 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   button: {
-    minHeight: 48,
-    borderRadius: radius.md,
+    minHeight: 50,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
   },
   buttonBordered: { borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border },
-  buttonText: { fontSize: fontSize.lg, fontWeight: '600' },
+  buttonText: {
+    fontFamily: font.semibold,
+    fontSize: fontSize.md,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
+  },
   fieldWrap: { marginBottom: spacing.md },
-  label: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: spacing.xs, fontWeight: '600' },
+  label: {
+    fontFamily: font.semibold,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
+  },
   input: {
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: 14,
     fontSize: fontSize.lg,
+    fontFamily: font.regular,
     color: colors.text,
   },
+  inputMono: { fontFamily: font.mono, letterSpacing: letterSpacing.tight },
   chip: {
-    backgroundColor: colors.bg,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
-  chipText: { fontSize: fontSize.sm, color: colors.textMuted, fontWeight: '600' },
-  sectionHeader: {
-    fontSize: fontSize.sm,
+  chipText: {
+    fontFamily: font.medium,
+    fontSize: fontSize.xs,
     color: colors.textMuted,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    marginBottom: spacing.sm,
-    marginTop: spacing.md,
+    letterSpacing: letterSpacing.wide,
   },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border, marginVertical: spacing.sm },
+  sectionHeader: {
+    fontFamily: font.semibold,
+    fontSize: fontSize.xs,
+    color: colors.faint,
+    letterSpacing: letterSpacing.wider,
+    textTransform: 'uppercase',
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
+  },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border, marginVertical: spacing.md },
+  segment: {
+    flexDirection: 'row',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+    backgroundColor: colors.card,
+  },
+  segItem: { flex: 1, paddingVertical: 10, alignItems: 'center' },
+  segItemActive: { backgroundColor: colors.text },
+  segText: {
+    fontFamily: font.semibold,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    letterSpacing: letterSpacing.wide,
+  },
+  segTextActive: { color: colors.bg },
   empty: { alignItems: 'center', justifyContent: 'center', padding: spacing.xl, flexGrow: 1 },
-  emptyTitle: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text, textAlign: 'center' },
+  emptyTitle: {
+    fontFamily: font.semibold,
+    fontSize: fontSize.lg,
+    color: colors.text,
+    textAlign: 'center',
+  },
   emptySubtitle: {
+    fontFamily: font.regular,
     fontSize: fontSize.md,
     color: colors.textMuted,
     textAlign: 'center',
     marginTop: spacing.sm,
+    lineHeight: 21,
   },
   fab: {
     position: 'absolute',
@@ -228,10 +305,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
   },
-  fabText: { color: colors.primaryText, fontSize: 30, fontWeight: '300', lineHeight: 34 },
 });
