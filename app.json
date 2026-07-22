@@ -8,7 +8,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.skyism.weighttrack",
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.com.skyism.weighttrack"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +29,9 @@
     "plugins": [
       "expo-router",
       "expo-sqlite",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-dev-client",
+      "@bacons/apple-targets"
     ],
     "experiments": {
       "typedRoutes": false

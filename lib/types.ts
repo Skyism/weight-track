@@ -94,3 +94,11 @@ export interface NewFoodInput {
   calories: number;
   protein: number;
 }
+
+/** A one-tap quick-add used by the Home Screen widget. */
+export interface QuickAddPreset {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+}

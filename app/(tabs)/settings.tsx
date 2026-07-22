@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Modal, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Button, Divider, Field, Screen, SectionHeader, SegmentedControl } from '../../components/ui';
 import { exportAll } from '../../db/repo';
+import { syncWidget } from '../../lib/widgetSync';
 import { useSettings } from '../../store/useSettings';
-import { Unit } from '../../lib/types';
+import { QuickAddPreset, Unit } from '../../lib/types';
 import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../theme/theme';
 
 const REST_PRESETS = [60, 90, 120, 180];
@@ -26,16 +27,24 @@ export default function SettingsScreen() {
     restTimerSeconds,
     calorieTarget,
     proteinTarget,
+    presets,
     setUnit,
     setRestTimerSeconds,
     setCalorieTarget,
     setProteinTarget,
+    setPresets,
   } = useSettings();
   const [exporting, setExporting] = useState<null | 'json' | 'csv'>(null);
 
   const [targetModal, setTargetModal] = useState(false);
   const [tCal, setTCal] = useState('');
   const [tProtein, setTProtein] = useState('');
+
+  const [presetModal, setPresetModal] = useState(false);
+  const [pId, setPId] = useState<string | null>(null);
+  const [pName, setPName] = useState('');
+  const [pCal, setPCal] = useState('');
+  const [pProtein, setPProtein] = useState('');
 
   const openTargets = () => {
     setTCal(String(calorieTarget));
@@ -47,6 +56,33 @@ export default function SettingsScreen() {
     await setCalorieTarget(Math.max(0, Math.round(parseFloat(tCal) || 0)));
     await setProteinTarget(Math.max(0, Math.round(parseFloat(tProtein) || 0)));
     setTargetModal(false);
+    syncWidget();
+  };
+
+  const openPreset = (preset: QuickAddPreset) => {
+    setPId(preset.id);
+    setPName(preset.name);
+    setPCal(String(preset.calories));
+    setPProtein(String(preset.protein));
+    setPresetModal(true);
+  };
+
+  const savePreset = async () => {
+    const name = pName.trim();
+    if (!name || !pId) return;
+    const next = presets.map((p) =>
+      p.id === pId
+        ? {
+            ...p,
+            name,
+            calories: Math.max(0, Math.round(parseFloat(pCal) || 0)),
+            protein: Math.max(0, Math.round(parseFloat(pProtein) || 0)),
+          }
+        : p
+    );
+    await setPresets(next);
+    setPresetModal(false);
+    syncWidget();
   };
 
   const shareText = async (title: string, message: string) => {
@@ -153,6 +189,19 @@ export default function SettingsScreen() {
       </View>
       <Button title="Edit targets" variant="secondary" onPress={openTargets} />
 
+      <SectionHeader>Widget quick-add</SectionHeader>
+      <Text style={styles.note}>
+        These presets appear as one-tap buttons on the Home Screen widget.
+      </Text>
+      {presets.map((p) => (
+        <Pressable key={p.id} onPress={() => openPreset(p)} style={styles.targetRow}>
+          <Text style={styles.targetLabel}>{p.name}</Text>
+          <Text style={styles.targetValue}>
+            {p.calories} kcal · {p.protein} g
+          </Text>
+        </Pressable>
+      ))}
+
       <SectionHeader>Data</SectionHeader>
       <Text style={styles.note}>
         Your workouts are stored only on this device. Export a backup regularly so you don&apos;t
@@ -193,6 +242,27 @@ export default function SettingsScreen() {
             <View style={styles.modalActions}>
               <Button title="Cancel" variant="ghost" onPress={() => setTargetModal(false)} style={styles.flexBtn} />
               <Button title="Save" onPress={saveTargets} style={styles.flexBtn} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={presetModal} animationType="slide" transparent onRequestClose={() => setPresetModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Quick-add preset</Text>
+            <Field label="Name" value={pName} onChangeText={setPName} autoFocus placeholder="e.g. Snack" />
+            <View style={styles.macroRow}>
+              <View style={styles.macroCol}>
+                <Field label="Calories" mono keyboardType="numeric" value={pCal} onChangeText={setPCal} placeholder="0" />
+              </View>
+              <View style={styles.macroCol}>
+                <Field label="Protein (g)" mono keyboardType="numeric" value={pProtein} onChangeText={setPProtein} placeholder="0" />
+              </View>
+            </View>
+            <View style={styles.modalActions}>
+              <Button title="Cancel" variant="ghost" onPress={() => setPresetModal(false)} style={styles.flexBtn} />
+              <Button title="Save" onPress={savePreset} disabled={!pName.trim()} style={styles.flexBtn} />
             </View>
           </View>
         </View>

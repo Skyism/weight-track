@@ -21,6 +21,7 @@ import {
   updateFood,
 } from '../../db/repo';
 import { DailyNutrition, FoodEntry } from '../../lib/types';
+import { syncWidget } from '../../lib/widgetSync';
 import { useSettings } from '../../store/useSettings';
 import { colors, font, fontSize, letterSpacing, radius, spacing } from '../../theme/theme';
 
@@ -83,6 +84,7 @@ export default function NutritionScreen() {
     const [rows, agg] = await Promise.all([listFoodForDate(date), listDailyNutrition()]);
     setEntries(rows);
     setDaily(agg);
+    syncWidget();
   }, [date]);
 
   useFocusEffect(
@@ -148,6 +150,7 @@ export default function NutritionScreen() {
     await setCalorieTarget(Math.max(0, Math.round(parseFloat(tCal) || 0)));
     await setProteinTarget(Math.max(0, Math.round(parseFloat(tProtein) || 0)));
     setTargetModal(false);
+    syncWidget();
   }, [tCal, tProtein, setCalorieTarget, setProteinTarget]);
 
   return (
