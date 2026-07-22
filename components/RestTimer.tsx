@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRestTimer } from '../store/useRestTimer';
-import { colors, fontSize, radius, spacing } from '../theme/theme';
+import { colors, font, fontSize, letterSpacing, radius, spacing } from '../theme/theme';
 
 function fmt(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -50,20 +50,32 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 5,
   },
-  label: { color: colors.card, fontSize: fontSize.md, fontWeight: '600' },
+  label: {
+    color: colors.faint,
+    fontSize: fontSize.xs,
+    fontFamily: font.semibold,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
+  },
   time: {
     color: colors.card,
     fontSize: fontSize.xl,
-    fontWeight: '800',
+    fontFamily: font.monoMedium,
+    letterSpacing: letterSpacing.tight,
     marginLeft: spacing.md,
-    fontVariant: ['tabular-nums'],
   },
   actions: { flexDirection: 'row', marginLeft: 'auto', gap: spacing.sm },
   action: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  actionText: { color: colors.card, fontSize: fontSize.sm, fontWeight: '700' },
+  actionText: {
+    color: colors.card,
+    fontSize: fontSize.xs,
+    fontFamily: font.semibold,
+    letterSpacing: letterSpacing.wide,
+    textTransform: 'uppercase',
+  },
 });

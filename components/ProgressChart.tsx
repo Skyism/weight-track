@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polyline, Text as SvgText } from 'react-native-svg';
-import { colors, fontSize, spacing } from '../theme/theme';
+import { colors, font, fontSize, spacing } from '../theme/theme';
 
 export interface ChartPoint {
   label: string; // x-axis label (e.g. date)
@@ -77,7 +77,8 @@ export function ProgressChart({
               x={padL - 6}
               y={y(v) + 4}
               fontSize={10}
-              fill={colors.textMuted}
+              fontFamily={font.mono}
+              fill={colors.faint}
               textAnchor="end"
             >
               {Math.round(v)}
@@ -86,7 +87,7 @@ export function ProgressChart({
           <Polyline
             points={polyline}
             fill="none"
-            stroke={colors.primary}
+            stroke={colors.text}
             strokeWidth={2}
             strokeLinejoin="round"
           />
@@ -96,20 +97,21 @@ export function ProgressChart({
               cx={x(i)}
               cy={y(p.value)}
               r={p.highlight ? 5 : 3}
-              fill={p.highlight ? colors.accent : colors.primary}
+              fill={p.highlight ? colors.accent : colors.text}
               stroke={colors.card}
-              strokeWidth={1}
+              strokeWidth={1.5}
             />
           ))}
           {/* first & last x labels */}
-          <SvgText x={padL} y={height - 6} fontSize={10} fill={colors.textMuted} textAnchor="start">
+          <SvgText x={padL} y={height - 6} fontSize={10} fontFamily={font.mono} fill={colors.faint} textAnchor="start">
             {points[0].label}
           </SvgText>
           <SvgText
             x={width - padR}
             y={height - 6}
             fontSize={10}
-            fill={colors.textMuted}
+            fontFamily={font.mono}
+            fill={colors.faint}
             textAnchor="end"
           >
             {points[points.length - 1].label}
@@ -122,7 +124,7 @@ export function ProgressChart({
 
 const styles = StyleSheet.create({
   wrap: { width: '100%' },
-  title: { fontSize: fontSize.md, fontWeight: '700', color: colors.text, marginBottom: spacing.xs },
+  title: { fontSize: fontSize.xs, fontFamily: font.semibold, color: colors.textMuted, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: spacing.sm },
   placeholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  placeholderText: { color: colors.textMuted, fontSize: fontSize.sm },
+  placeholderText: { color: colors.faint, fontSize: fontSize.sm, fontFamily: font.regular },
 });
